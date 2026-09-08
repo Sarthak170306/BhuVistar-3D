@@ -1,0 +1,20 @@
+[project]
+name = "bhuvistaar-3d-backend"
+version = "0.1.0"
+description = "Backend service for BhuVistaar 3D - 3D ULPIN Generation and Vertical Property Mapping System"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy>=2.0.0",
+    "geoalchemy2>=0.16.0",
+    "psycopg[binary]>=3.2.0",
+    "pydantic-settings>=2.6.0",
+    "python-dotenv>=1.0.1",
+    "alembic>=1.14.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

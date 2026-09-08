@@ -1,0 +1,13 @@
+﻿# Core Web Framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Database & Spatial ORM
+sqlalchemy>=2.0.0
+geoalchemy2>=0.16.0
+psycopg[binary]>=3.2.0
+alembic>=1.14.0
+
+# Configuration & Environment Management
+pydantic-settings>=2.6.0
+python-dotenv>=1.0.1
