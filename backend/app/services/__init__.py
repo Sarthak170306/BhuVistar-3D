@@ -17,6 +17,7 @@ from app.services.ulpin_record_service import (
     extract_floor_number,
     get_ulpin_record_by_code,
     get_ulpin_record_by_unit_id,
+    get_ulpin_records_by_parcel,
     resolve_unit,
 )
 
@@ -37,6 +38,8 @@ __all__ = [
     "extract_floor_number",
     "get_ulpin_record_by_code",
     "get_ulpin_record_by_unit_id",
+    "get_ulpin_records_by_parcel",
     "resolve_unit",
 ]
+
 

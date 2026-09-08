@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import Optional, Union
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+
 
 
 class ULPINGenerateRequest(BaseModel):
@@ -138,3 +140,99 @@ class ULPINErrorResponse(BaseModel):
             }
         }
     )
+
+
+class ULPINRecordData(BaseModel):
+    """
+    Cadastral volumetric property data for a persisted 3D ULPIN record.
+    Excludes owner PII and sensitive internal relationships.
+    """
+    record_id: str = Field(..., description="UUID primary key of the ULPIN3D database record")
+    ulpin_3d: str = Field(..., description="Canonical 3D ULPIN identifier")
+    unit_id: str = Field(..., description="UUID primary key of the associated Unit entity")
+    parcel_id_reference: str = Field(..., description="Parent cadastral parcel reference")
+    building_id_reference: str = Field(..., description="Parent building/tower reference")
+    floor_number: int = Field(..., description="Vertical floor level index")
+    unit_code: str = Field(..., description="Unit reference code within floor/building")
+    unit_type: Optional[str] = Field(None, description="Volumetric property classification (e.g. RES, COM, PRK)")
+    generation_version: str = Field(default="1.0", description="Algorithm generation specification version")
+    created_at: datetime = Field(..., description="Timestamp of when ULPIN was created and persisted")
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "record_id": "e13e4ae2-9e99-4b2b-8491-feb8ea548653",
+                "ulpin_3d": "BV3D-UP-NOI-NOIDA001-B001-B02-UP32-PRK",
+                "unit_id": "92c14ea1-9146-4905-9041-1c8db759714e",
+                "parcel_id_reference": "NOIDA001",
+                "building_id_reference": "B001",
+                "floor_number": -2,
+                "unit_code": "UP32",
+                "unit_type": "PRK",
+                "generation_version": "1.0",
+                "created_at": "2026-09-08T04:43:46.435919Z",
+            }
+        },
+    )
+
+
+class ULPINRetrieveResponse(BaseModel):
+    """
+    Response schema for single 3D ULPIN record retrieval.
+    """
+    success: bool = Field(default=True, description="Indicates whether retrieval succeeded")
+    data: ULPINRecordData = Field(..., description="Persisted 3D ULPIN record cadastral details")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "data": {
+                    "record_id": "e13e4ae2-9e99-4b2b-8491-feb8ea548653",
+                    "ulpin_3d": "BV3D-UP-NOI-NOIDA001-B001-B02-UP32-PRK",
+                    "unit_id": "92c14ea1-9146-4905-9041-1c8db759714e",
+                    "parcel_id_reference": "NOIDA001",
+                    "building_id_reference": "B001",
+                    "floor_number": -2,
+                    "unit_code": "UP32",
+                    "unit_type": "PRK",
+                    "generation_version": "1.0",
+                    "created_at": "2026-09-08T04:43:46.435919Z",
+                },
+            }
+        }
+    )
+
+
+class ULPINParcelCollectionResponse(BaseModel):
+    """
+    Response schema for querying 3D ULPIN records by parent parcel.
+    """
+    success: bool = Field(default=True, description="Indicates whether parcel query succeeded")
+    data: list[ULPINRecordData] = Field(default_factory=list, description="List of persisted 3D ULPIN records")
+    count: int = Field(default=0, description="Total count of records returned")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "data": [
+                    {
+                        "record_id": "e13e4ae2-9e99-4b2b-8491-feb8ea548653",
+                        "ulpin_3d": "BV3D-UP-NOI-NOIDA001-B001-B02-UP32-PRK",
+                        "unit_id": "92c14ea1-9146-4905-9041-1c8db759714e",
+                        "parcel_id_reference": "NOIDA001",
+                        "building_id_reference": "B001",
+                        "floor_number": -2,
+                        "unit_code": "UP32",
+                        "unit_type": "PRK",
+                        "generation_version": "1.0",
+                        "created_at": "2026-09-08T04:43:46.435919Z",
+                    }
+                ],
+                "count": 1,
+            }
+        }
+    )
+

@@ -6,10 +6,14 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.models.ulpin_3d import ULPIN3D
 from app.schemas.ulpin import (
     ULPINErrorResponse,
     ULPINGenerateRequest,
     ULPINGenerateResponse,
+    ULPINParcelCollectionResponse,
+    ULPINRecordData,
+    ULPINRetrieveResponse,
 )
 from app.services.ulpin_generator import (
     ULPINValidationError,
@@ -24,6 +28,9 @@ from app.services.ulpin_record_service import (
     ULPINUnitNotFoundError,
     create_ulpin_record,
     extract_floor_number,
+    get_ulpin_record_by_code,
+    get_ulpin_record_by_unit_id,
+    get_ulpin_records_by_parcel,
     resolve_unit,
 )
 
@@ -227,3 +234,135 @@ def generate_ulpin(
                 "detail": str(exc),
             },
         )
+
+
+def serialize_ulpin_record(record: ULPIN3D) -> ULPINRecordData:
+    """Helper to convert ORM ULPIN3D entity to clean Pydantic cadastral data without leaking ORM internals or owner PII."""
+    return ULPINRecordData(
+        record_id=str(record.id),
+        ulpin_3d=record.ulpin_3d,
+        unit_id=str(record.unit_id),
+        parcel_id_reference=record.parcel_id_reference,
+        building_id_reference=record.building_id_reference,
+        floor_number=record.floor_number,
+        unit_code=record.unit_code,
+        unit_type=record.unit_type,
+        generation_version=record.generation_version,
+        created_at=record.created_at,
+    )
+
+
+@router.get(
+    "/unit/{unit_id}",
+    response_model=ULPINRetrieveResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": ULPINRetrieveResponse,
+            "description": "3D ULPIN record associated with the unit",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "model": ULPINErrorResponse,
+            "description": "No 3D ULPIN record exists for the specified unit",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Invalid UUID format for unit_id",
+        },
+    },
+    summary="Retrieve 3D ULPIN by Unit ID",
+    description="Resolves and returns the canonical 3D ULPIN record associated with a given Unit UUID.",
+)
+def get_ulpin_by_unit(
+    unit_id: uuid.UUID,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Retrieves the 3D ULPIN record associated with a specific volumetric unit ID.
+    Returns HTTP 200 on success, HTTP 404 if no record exists, and HTTP 422 if unit_id is not a valid UUID.
+    """
+    record = get_ulpin_record_by_unit_id(db, unit_id)
+    if not record:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "success": False,
+                "error": f"3D ULPIN record not found for unit '{unit_id}'.",
+                "detail": f"No 3D ULPIN record found associated with unit ID '{unit_id}'.",
+            },
+        )
+    return ULPINRetrieveResponse(
+        success=True,
+        data=serialize_ulpin_record(record),
+    )
+
+
+@router.get(
+    "/parcel/{parcel_id}",
+    response_model=ULPINParcelCollectionResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": ULPINParcelCollectionResponse,
+            "description": "Collection of 3D ULPIN records belonging to the parcel",
+        },
+    },
+    summary="Retrieve 3D ULPINs by Parcel",
+    description="Returns all persisted 3D ULPIN records belonging to the specified parcel in deterministic order.",
+)
+def get_ulpins_by_parcel(
+    parcel_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Returns all persisted 3D ULPIN records belonging to the specified parent parcel.
+    Results are deterministically ordered. Returns an empty collection (HTTP 200) when no records exist.
+    """
+    records = get_ulpin_records_by_parcel(db, parcel_id)
+    serialized = [serialize_ulpin_record(r) for r in records]
+    return ULPINParcelCollectionResponse(
+        success=True,
+        data=serialized,
+        count=len(serialized),
+    )
+
+
+@router.get(
+    "/{ulpin_3d}",
+    response_model=ULPINRetrieveResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": ULPINRetrieveResponse,
+            "description": "Persisted 3D ULPIN record",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "model": ULPINErrorResponse,
+            "description": "3D ULPIN record not found",
+        },
+    },
+    summary="Retrieve 3D ULPIN by Canonical Identifier",
+    description="Queries and returns a persisted 3D ULPIN record by its canonical alphanumeric identifier.",
+)
+def get_ulpin_by_code(
+    ulpin_3d: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Retrieves a single persisted 3D ULPIN record by its canonical identifier string.
+    Returns HTTP 200 on success and HTTP 404 if the identifier does not exist.
+    """
+    record = get_ulpin_record_by_code(db, ulpin_3d)
+    if not record:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "success": False,
+                "error": f"3D ULPIN '{ulpin_3d}' not found.",
+                "detail": f"No persisted 3D ULPIN record exists matching '{ulpin_3d}'.",
+            },
+        )
+    return ULPINRetrieveResponse(
+        success=True,
+        data=serialize_ulpin_record(record),
+    )
+

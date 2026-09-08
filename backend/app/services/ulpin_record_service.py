@@ -212,3 +212,24 @@ def get_ulpin_record_by_code(db: Session, ulpin_3d: str) -> Optional[ULPIN3D]:
 def get_ulpin_record_by_unit_id(db: Session, unit_id: uuid.UUID) -> Optional[ULPIN3D]:
     """Fetches a ULPIN3D record by its associated Unit UUID."""
     return db.query(ULPIN3D).filter(ULPIN3D.unit_id == unit_id).first()
+
+
+def get_ulpin_records_by_parcel(db: Session, parcel_id: str) -> list[ULPIN3D]:
+    """
+    Returns all persisted 3D ULPIN records belonging to the specified parcel.
+    Results are deterministically ordered by building reference, floor number,
+    unit code, and canonical ULPIN identifier.
+    """
+    norm_parcel = parcel_id.strip().upper()
+    return (
+        db.query(ULPIN3D)
+        .filter(ULPIN3D.parcel_id_reference == norm_parcel)
+        .order_by(
+            ULPIN3D.building_id_reference.asc(),
+            ULPIN3D.floor_number.asc(),
+            ULPIN3D.unit_code.asc(),
+            ULPIN3D.ulpin_3d.asc(),
+        )
+        .all()
+    )
+
