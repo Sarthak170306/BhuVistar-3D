@@ -1,3 +1,8 @@
+from app.schemas.spatial import (
+    SpatialChecks,
+    SpatialValidationErrorResponse,
+    UnitSpatialValidationResponse,
+)
 from app.schemas.ulpin import (
     ULPINErrorResponse,
     ULPINGenerateRequest,
@@ -5,6 +10,7 @@ from app.schemas.ulpin import (
     ULPINParcelCollectionResponse,
     ULPINRecordData,
     ULPINRetrieveResponse,
+    ULPINSpatialCollectionResponse,
 )
 
 __all__ = [
@@ -14,5 +20,10 @@ __all__ = [
     "ULPINRecordData",
     "ULPINRetrieveResponse",
     "ULPINParcelCollectionResponse",
+    "ULPINSpatialCollectionResponse",
+    "SpatialChecks",
+    "UnitSpatialValidationResponse",
+    "SpatialValidationErrorResponse",
 ]
+
 

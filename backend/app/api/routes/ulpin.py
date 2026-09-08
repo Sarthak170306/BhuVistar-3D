@@ -14,6 +14,7 @@ from app.schemas.ulpin import (
     ULPINParcelCollectionResponse,
     ULPINRecordData,
     ULPINRetrieveResponse,
+    ULPINSpatialCollectionResponse,
 )
 from app.services.ulpin_generator import (
     ULPINValidationError,
@@ -32,6 +33,12 @@ from app.services.ulpin_record_service import (
     get_ulpin_record_by_unit_id,
     get_ulpin_records_by_parcel,
     resolve_unit,
+)
+from app.services.ulpin_spatial_service import (
+    SpatialValidationError,
+    find_ulpins_at_point,
+    find_ulpins_by_height_range,
+    find_ulpins_within_bbox,
 )
 
 router = APIRouter()
@@ -250,6 +257,154 @@ def serialize_ulpin_record(record: ULPIN3D) -> ULPINRecordData:
         generation_version=record.generation_version,
         created_at=record.created_at,
     )
+
+
+@router.get(
+    "/spatial/bbox",
+    response_model=ULPINSpatialCollectionResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": ULPINSpatialCollectionResponse,
+            "description": "3D ULPIN records intersecting the bounding box",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Invalid bounding box coordinate parameters",
+        },
+    },
+    summary="Spatial Bounding Box Query",
+    description="Returns all persisted 3D ULPIN records whose spatial geometry intersects the requested bounding box in EPSG:4326.",
+)
+def query_ulpins_by_bbox(
+    min_lon: float = Query(..., ge=-180.0, le=180.0, description="Minimum longitude (-180.0 to 180.0)"),
+    min_lat: float = Query(..., ge=-90.0, le=90.0, description="Minimum latitude (-90.0 to 90.0)"),
+    max_lon: float = Query(..., ge=-180.0, le=180.0, description="Maximum longitude (-180.0 to 180.0)"),
+    max_lat: float = Query(..., ge=-90.0, le=90.0, description="Maximum latitude (-90.0 to 90.0)"),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Queries persisted 3D ULPIN records intersecting a 2D bounding box envelope using PostGIS ST_MakeEnvelope.
+    Returns HTTP 200 with matching records (empty list if none found), or HTTP 422 if coordinates/bounds are invalid.
+    """
+    try:
+        records = find_ulpins_within_bbox(
+            db,
+            min_lon=min_lon,
+            min_lat=min_lat,
+            max_lon=max_lon,
+            max_lat=max_lat,
+        )
+        serialized = [serialize_ulpin_record(r) for r in records]
+        return ULPINSpatialCollectionResponse(
+            success=True,
+            data=serialized,
+            count=len(serialized),
+        )
+    except SpatialValidationError as exc:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content={
+                "success": False,
+                "error": str(exc),
+                "detail": str(exc),
+            },
+        )
+
+
+@router.get(
+    "/spatial/point",
+    response_model=ULPINSpatialCollectionResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": ULPINSpatialCollectionResponse,
+            "description": "3D ULPIN records intersecting the horizontal XY point",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Invalid point coordinate parameters",
+        },
+    },
+    summary="Spatial Horizontal Point Query",
+    description="Returns persisted 3D ULPIN records whose volumetric geometry intersects the requested horizontal XY point (longitude, latitude) in EPSG:4326.",
+)
+def query_ulpins_by_point(
+    longitude: float = Query(..., ge=-180.0, le=180.0, description="Horizontal longitude coordinate in EPSG:4326 (-180.0 to 180.0)"),
+    latitude: float = Query(..., ge=-90.0, le=90.0, description="Horizontal latitude coordinate in EPSG:4326 (-90.0 to 90.0)"),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Queries persisted 3D ULPIN records intersecting a horizontal XY location using PostGIS ST_Intersects and ST_MakePoint.
+    Returns HTTP 200 with matching records (empty list if none found), or HTTP 422 if coordinates are invalid.
+    """
+    try:
+        records = find_ulpins_at_point(
+            db,
+            longitude=longitude,
+            latitude=latitude,
+        )
+        serialized = [serialize_ulpin_record(r) for r in records]
+        return ULPINSpatialCollectionResponse(
+            success=True,
+            data=serialized,
+            count=len(serialized),
+        )
+    except SpatialValidationError as exc:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content={
+                "success": False,
+                "error": str(exc),
+                "detail": str(exc),
+            },
+        )
+
+
+@router.get(
+    "/spatial/z-range",
+    response_model=ULPINSpatialCollectionResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": ULPINSpatialCollectionResponse,
+            "description": "3D ULPIN records overlapping the vertical elevation range",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Invalid vertical range parameters",
+        },
+    },
+    summary="Vertical 3D Spatial Z-Range Query",
+    description="Returns persisted 3D ULPIN records whose vertical 3D spatial extent overlaps the requested elevation range in meters (EPSG:4326 + Z).",
+)
+def query_ulpins_by_z_range(
+    min_z: float = Query(..., description="Minimum vertical Z elevation in meters"),
+    max_z: float = Query(..., description="Maximum vertical Z elevation in meters"),
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Queries persisted 3D ULPIN records overlapping a vertical Z elevation range in meters using PostGIS ST_ZMin/ST_ZMax and floor elevation datums.
+    Returns HTTP 200 with matching records (empty list if none found), or HTTP 422 if min_z > max_z.
+    """
+    try:
+        records = find_ulpins_by_height_range(
+            db,
+            min_z=min_z,
+            max_z=max_z,
+        )
+        serialized = [serialize_ulpin_record(r) for r in records]
+        return ULPINSpatialCollectionResponse(
+            success=True,
+            data=serialized,
+            count=len(serialized),
+        )
+    except SpatialValidationError as exc:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content={
+                "success": False,
+                "error": str(exc),
+                "detail": str(exc),
+            },
+        )
 
 
 @router.get(

@@ -11,6 +11,12 @@ from app.services.ulpin_record_service import (
     ULPINDuplicateError,
     ULPINUnitNotFoundError,
 )
+from app.services.spatial_validation_service import (
+    InvalidGeometryError,
+    SpatialContainmentError,
+    SpatialValidationError as SpatialHierarchyValidationError,
+)
+from app.services.ulpin_spatial_service import SpatialValidationError
 
 app = FastAPI(
     title=f"{settings.PROJECT_NAME} API",
@@ -29,6 +35,32 @@ def ulpin_validation_error_handler(request: Request, exc: ULPINValidationError) 
             "detail": str(exc),
         },
     )
+
+
+@app.exception_handler(SpatialHierarchyValidationError)
+def spatial_hierarchy_error_handler(request: Request, exc: SpatialHierarchyValidationError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "success": False,
+            "valid": False,
+            "error": str(exc),
+            "detail": str(exc),
+        },
+    )
+
+
+@app.exception_handler(SpatialValidationError)
+def spatial_validation_error_handler(request: Request, exc: SpatialValidationError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        content={
+            "success": False,
+            "error": str(exc),
+            "detail": str(exc),
+        },
+    )
+
 
 
 @app.exception_handler(ULPINUnitNotFoundError)

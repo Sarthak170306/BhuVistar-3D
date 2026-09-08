@@ -21,6 +21,26 @@ from app.services.ulpin_record_service import (
     resolve_unit,
 )
 
+from app.services.spatial_validation_service import (
+    InvalidGeometryError,
+    SpatialContainmentError,
+    SpatialValidationError as SpatialHierarchyValidationError,
+    validate_building_geometry,
+    validate_building_within_parcel,
+    validate_floor_geometry,
+    validate_parcel_geometry,
+    validate_unit_geometry,
+    validate_unit_spatial_hierarchy,
+    validate_unit_within_parent,
+)
+from app.services.ulpin_spatial_service import (
+    SpatialValidationError,
+    find_ulpins_at_point,
+    find_ulpins_by_height_range,
+    find_ulpins_intersecting_geometry,
+    find_ulpins_within_bbox,
+)
+
 __all__ = [
     "ULPINValidationError",
     "generate_3d_ulpin",
@@ -40,6 +60,21 @@ __all__ = [
     "get_ulpin_record_by_unit_id",
     "get_ulpin_records_by_parcel",
     "resolve_unit",
+    "SpatialValidationError",
+    "find_ulpins_within_bbox",
+    "find_ulpins_at_point",
+    "find_ulpins_by_height_range",
+    "find_ulpins_intersecting_geometry",
+    "SpatialHierarchyValidationError",
+    "InvalidGeometryError",
+    "SpatialContainmentError",
+    "validate_parcel_geometry",
+    "validate_building_geometry",
+    "validate_floor_geometry",
+    "validate_unit_geometry",
+    "validate_building_within_parcel",
+    "validate_unit_within_parent",
+    "validate_unit_spatial_hierarchy",
 ]
 
 

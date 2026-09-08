@@ -236,3 +236,36 @@ class ULPINParcelCollectionResponse(BaseModel):
         }
     )
 
+
+class ULPINSpatialCollectionResponse(BaseModel):
+    """
+    Response schema for spatial query endpoints (bounding box, point, vertical z-range).
+    """
+    success: bool = Field(default=True, description="Indicates whether the spatial query succeeded")
+    data: list[ULPINRecordData] = Field(default_factory=list, description="List of matching 3D ULPIN records")
+    count: int = Field(default=0, description="Total count of matching records")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "success": True,
+                "data": [
+                    {
+                        "record_id": "e13e4ae2-9e99-4b2b-8491-feb8ea548653",
+                        "ulpin_3d": "BV3D-UP-NOI-NOIDA001-B001-B02-UP32-PRK",
+                        "unit_id": "92c14ea1-9146-4905-9041-1c8db759714e",
+                        "parcel_id_reference": "NOIDA001",
+                        "building_id_reference": "B001",
+                        "floor_number": -2,
+                        "unit_code": "UP32",
+                        "unit_type": "PRK",
+                        "generation_version": "1.0",
+                        "created_at": "2026-09-08T04:43:46.435919Z",
+                    }
+                ],
+                "count": 1,
+            }
+        }
+    )
+
+
