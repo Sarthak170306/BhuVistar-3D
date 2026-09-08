@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    container_name: bhuvistaar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sih_ulpin}
+      POSTGRES_USER: ${POSTGRES_USER:-sih_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sih_user} -d ${POSTGRES_DB:-sih_ulpin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: bhuvistaar_postgres_data
