@@ -1,5 +1,6 @@
 from typing import Any
 from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -22,6 +23,15 @@ app = FastAPI(
     title=f"{settings.PROJECT_NAME} API",
     description=settings.DESCRIPTION,
     version=settings.VERSION,
+)
+
+# CORS middleware for local development origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

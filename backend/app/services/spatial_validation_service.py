@@ -46,13 +46,24 @@ def check_geometry_validity_and_srid(
         return False, msg
 
     try:
-        stmt = select(
-            func.ST_IsValid(geom),
-            func.ST_IsValidReason(geom),
-            func.ST_SRID(geom),
-            func.ST_IsEmpty(geom),
-        )
-        is_valid, reason, srid, is_empty = db.execute(stmt).one()
+        gtype = db.execute(select(func.ST_GeometryType(geom))).scalar()
+        if gtype == "ST_PolyhedralSurface":
+            stmt = select(
+                func.ST_SRID(geom),
+                func.ST_IsEmpty(geom),
+                func.ST_NumGeometries(geom),
+            )
+            srid, is_empty, num_faces = db.execute(stmt).one()
+            is_valid = bool(num_faces is not None and num_faces >= 4)
+            reason = "Valid PolyhedralSurface" if is_valid else "PolyhedralSurface has fewer than 4 faces"
+        else:
+            stmt = select(
+                func.ST_IsValid(geom),
+                func.ST_IsValidReason(geom),
+                func.ST_SRID(geom),
+                func.ST_IsEmpty(geom),
+            )
+            is_valid, reason, srid, is_empty = db.execute(stmt).one()
     except Exception as exc:
         msg = f"{entity_name} geometry is malformed or could not be processed by PostGIS: {exc}."
         if raise_on_error:
@@ -90,7 +101,8 @@ def check_spatial_containment(
 ) -> tuple[bool, str]:
     """
     Evaluates whether child_geom is spatially contained within parent_geom.
-    Uses PostGIS ST_Covers and ST_Within with ST_Force2D for robust 2D/3D footprint projection containment.
+    Uses PostGIS ST_Covers and ST_Within with ST_Force2D for 2D/3D polygons,
+    or ST_Envelope for 3D polyhedral surfaces.
     """
     if child_geom is None or parent_geom is None:
         msg = f"Cannot evaluate spatial containment: {child_name} or {parent_name} geometry is missing."
@@ -99,10 +111,16 @@ def check_spatial_containment(
         return False, msg
 
     try:
+        gtype = db.execute(select(func.ST_GeometryType(child_geom))).scalar()
+        if gtype == "ST_PolyhedralSurface":
+            target_child = func.ST_Envelope(child_geom)
+        else:
+            target_child = func.ST_Force2D(child_geom)
+
         stmt = select(
             or_(
-                func.ST_Covers(parent_geom, func.ST_Force2D(child_geom)),
-                func.ST_Within(func.ST_Force2D(child_geom), parent_geom),
+                func.ST_Covers(parent_geom, target_child),
+                func.ST_Within(target_child, parent_geom),
             )
         )
         is_contained = bool(db.execute(stmt).scalar())

@@ -1,0 +1,202 @@
+.ulpin-spec-section {
+  width: 100%;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 48px var(--space-6);
+}
+
+.ulpin-spec-container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+
+.ulpin-spec__header {
+  margin-bottom: var(--space-6);
+  max-width: 760px;
+}
+
+.ulpin-spec__header .section-eyebrow {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-2);
+}
+
+.ulpin-spec__header .section-title {
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-3);
+}
+
+.ulpin-spec__header .section-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Canonical Identifier Display Card */
+.ulpin-spec-display-card {
+  background-color: #f8fafc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.ulpin-spec-display-card__label {
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.ulpin-spec-segments {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ulpin-segment-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ulpin-segment-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-surface);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  min-width: 64px;
+}
+
+.ulpin-segment-chip__value {
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
+.ulpin-segment-chip__label {
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.ulpin-segment-separator {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-border-subtle);
+  user-select: none;
+}
+
+/* Table Container */
+.ulpin-spec-table-container {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+}
+
+.ulpin-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ulpin-spec-table th {
+  padding: 12px var(--space-4);
+  background-color: #f8fafc;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ulpin-spec-table td {
+  padding: 12px var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  vertical-align: middle;
+}
+
+.ulpin-spec-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ulpin-spec-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.col-component {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  width: 25%;
+}
+
+.col-example {
+  width: 25%;
+}
+
+.col-example code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  background-color: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.col-meaning {
+  width: 50%;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+  .ulpin-spec-section {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .ulpin-spec__header .section-title {
+    font-size: 1.5rem;
+  }
+
+  .ulpin-segment-chip {
+    min-width: 54px;
+    padding: 6px 8px;
+  }
+
+  .ulpin-segment-chip__value {
+    font-size: 0.9375rem;
+  }
+
+  .ulpin-spec-table th,
+  .ulpin-spec-table td {
+    padding: 10px 12px;
+  }
+}

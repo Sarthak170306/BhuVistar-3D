@@ -67,7 +67,7 @@ def spatial_cadastral_setup(db: Session):
     db.flush()
 
     building = Building(
-        building_id="B001",
+        building_id=f"B_{uuid.uuid4().hex[:6].upper()}",
         parcel_id=parcel.id,
         name="Paramount 3D Tower",
         geometry=WKTElement(

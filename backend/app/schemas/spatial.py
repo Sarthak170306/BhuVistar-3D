@@ -71,3 +71,87 @@ class SpatialValidationErrorResponse(BaseModel):
     checks: Optional[SpatialChecks] = Field(None, description="Breakdown of checks completed before failure")
 
     model_config = ConfigDict(extra="ignore")
+
+
+class GeometryBounds(BaseModel):
+    """3D bounding box coordinates in EPSG:4326 + Z."""
+    min_lon: float = Field(..., description="Minimum longitude in EPSG:4326")
+    max_lon: float = Field(..., description="Maximum longitude in EPSG:4326")
+    min_lat: float = Field(..., description="Minimum latitude in EPSG:4326")
+    max_lat: float = Field(..., description="Maximum latitude in EPSG:4326")
+    min_z: Optional[float] = Field(None, description="Minimum elevation Z in meters")
+    max_z: Optional[float] = Field(None, description="Maximum elevation Z in meters")
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class GeometryOrigin(BaseModel):
+    """Centroid/origin coordinates for Three.js local metric translation."""
+    center_lon: float = Field(..., description="Centroid longitude in EPSG:4326")
+    center_lat: float = Field(..., description="Centroid latitude in EPSG:4326")
+    center_z: Optional[float] = Field(None, description="Centroid elevation Z in meters")
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class VerticalRange(BaseModel):
+    """Vertical elevation extent in meters."""
+    min_z: Optional[float] = Field(None, description="Minimum vertical Z elevation in meters")
+    max_z: Optional[float] = Field(None, description="Maximum vertical Z elevation in meters")
+    elevation_datum: str = Field("MSL", description="Vertical reference datum")
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class BuildingGeometrySummary(BaseModel):
+    """Parent building metadata and footprint geometry."""
+    building_id: str
+    name: Optional[str] = None
+    height_m: Optional[float] = None
+    total_floors: Optional[int] = None
+    geometry: Optional[dict] = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class FloorGeometrySummary(BaseModel):
+    """Parent floor metadata, elevation, and boundary geometry."""
+    floor_number: int
+    floor_name: Optional[str] = None
+    elevation_m: Optional[float] = None
+    height_m: Optional[float] = None
+    geometry: Optional[dict] = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ParcelGeometrySummary(BaseModel):
+    """Parent parcel metadata and boundary geometry."""
+    parcel_id: str
+    state: Optional[str] = None
+    district: Optional[str] = None
+    geometry: Optional[dict] = None
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class UnitGeometryResponse(BaseModel):
+    """Response payload for authoritative PostGIS unit 3D geometry serialization."""
+    success: bool = Field(True, description="Indicates serialization success")
+    unit_id: str = Field(..., description="UUID of the volumetric property unit")
+    srid: int = Field(4326, description="Spatial reference system identifier (EPSG:4326)")
+    geometry_type: Optional[str] = Field(None, description="Geometry type e.g. PolyhedralSurface, Polygon, MultiPolygon")
+    has_geometry: bool = Field(..., description="Whether unit has a registered PostGIS geometry")
+    geometry: Optional[dict] = Field(None, description="Standard GeoJSON 3D geometry object with [lon, lat, elev] coordinates")
+    building: Optional[BuildingGeometrySummary] = Field(None, description="Parent building footprint and elevation")
+    floor: Optional[FloorGeometrySummary] = Field(None, description="Parent floor boundary and elevation")
+    parcel: Optional[ParcelGeometrySummary] = Field(None, description="Parent cadastral parcel boundary")
+    bounds: Optional[GeometryBounds] = Field(None, description="3D bounding box coordinates")
+    vertical_range: Optional[VerticalRange] = Field(None, description="Vertical elevation range in meters")
+    origin: Optional[GeometryOrigin] = Field(None, description="Local coordinate origin for 3D rendering")
+    source: str = Field("postgis", description="Authoritative spatial data source")
+    message: str = Field("Authoritative PostGIS geometry serialized successfully.", description="Status message")
+    detail: Optional[str] = Field(None, description="Additional context or notes")
+
+    model_config = ConfigDict(extra="ignore")
+

@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     API_BASE_URL: str = "http://localhost:8000"
 
+    # CORS Configuration for local development
+    BACKEND_CORS_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
     # PostgreSQL + PostGIS Configuration
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5433
@@ -49,6 +57,11 @@ class Settings(BaseSettings):
 
     # Cesium Ion Token (Placeholder - empty by default, no default API key)
     CESIUM_ION_TOKEN: str = ""
+
+    # JWT Authentication Configuration
+    JWT_SECRET_KEY: str = "bhuvistaar-jwt-secret-key-production-change-me"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
     @field_validator("DATABASE_URL", mode="after")
     @classmethod

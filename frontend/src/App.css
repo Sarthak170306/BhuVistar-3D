@@ -1,0 +1,307 @@
+/* ==========================================================================
+   BhuVistaar 3D — Compact GIS Cadastral Workbench Layout
+   Theme: Professional Dark Navy / Slate GIS Prototype
+   ========================================================================== */
+
+:root {
+  --gis-bg-canvas: #070b14;
+  --gis-bg-app: #0b1120;
+  --gis-bg-header: #0d1526;
+  --gis-bg-panel: #0f172a;
+  --gis-bg-surface: #162032;
+  --gis-bg-input: #0b1120;
+  --gis-border: #1e293b;
+  --gis-border-subtle: #26354a;
+  --gis-border-focus: #2563eb;
+  --gis-text-primary: #f8fafc;
+  --gis-text-secondary: #94a3b8;
+  --gis-text-muted: #64748b;
+  --gis-accent: #2563eb;
+  --gis-accent-hover: #1d4ed8;
+  --gis-success: #10b981;
+  --gis-warning: #f59e0b;
+  --gis-info: #38bdf8;
+  --gis-radius-sm: 4px;
+  --gis-radius-md: 6px;
+  --gis-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --gis-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Base App Shell pinned to viewport (No window scrollbars) */
+.cadastral-app {
+  height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--gis-bg-app);
+  color: var(--gis-text-primary);
+  font-family: var(--gis-font-sans);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   1. HEADER: Compact 48px Institutional Header
+   ========================================================================== */
+.cadastral-header {
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  background-color: var(--gis-bg-header);
+  border-bottom: 1px solid var(--gis-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 10;
+  user-select: none;
+}
+
+.cadastral-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cadastral-header__icon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.cadastral-header__titles {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cadastral-header__title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--gis-text-primary);
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1;
+}
+
+.cadastral-header__subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gis-text-secondary);
+  border-left: 1px solid var(--gis-border-subtle);
+  padding-left: 8px;
+  line-height: 1;
+}
+
+.cadastral-header__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--gis-bg-surface);
+  border: 1px solid var(--gis-border-subtle);
+  border-radius: var(--gis-radius-sm);
+  padding: 4px 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.cadastral-header__status .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--gis-success);
+}
+
+.cadastral-header__status .status-dot--connected {
+  background-color: var(--gis-success);
+}
+
+.cadastral-header__status .status-dot--checking {
+  background-color: var(--gis-warning);
+}
+
+.cadastral-header__status .status-dot--disconnected {
+  background-color: #ef4444;
+}
+
+.cadastral-header__status--disconnected {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.cadastral-header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cadastral-header__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--gis-bg-surface);
+  border: 1px solid var(--gis-border-subtle);
+  border-radius: var(--gis-radius-sm);
+  padding: 3px 8px;
+}
+
+.user-role-badge {
+  font-family: var(--gis-font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.user-name-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cadastral-header__logout {
+  background-color: transparent;
+  color: #94a3b8;
+  border: 1px solid var(--gis-border-subtle);
+  border-radius: var(--gis-radius-sm);
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cadastral-header__logout:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.cadastral-auth-loading {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--gis-bg-app);
+  color: var(--gis-text-secondary);
+  font-family: var(--gis-font-sans);
+  gap: 16px;
+}
+
+/* ==========================================================================
+   2. MAIN: Three-Region Horizontal Layout
+   ========================================================================== */
+.cadastral-workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  background-color: var(--gis-bg-canvas);
+  position: relative;
+}
+
+/* LEFT PANEL: Compact ULPIN Generator (280px-310px width) */
+.cadastral-panel-left {
+  width: 290px;
+  min-width: 270px;
+  max-width: 310px;
+  flex-shrink: 0;
+  background-color: var(--gis-bg-panel);
+  border-right: 1px solid var(--gis-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Thin GIS-style scrollbars */
+.cadastral-panel-left,
+.property-panel-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gis-border) var(--gis-bg-panel);
+}
+
+.cadastral-panel-left::-webkit-scrollbar,
+.property-panel-wrapper::-webkit-scrollbar {
+  width: 5px;
+}
+
+.cadastral-panel-left::-webkit-scrollbar-track,
+.property-panel-wrapper::-webkit-scrollbar-track {
+  background: var(--gis-bg-panel);
+}
+
+.cadastral-panel-left::-webkit-scrollbar-thumb,
+.property-panel-wrapper::-webkit-scrollbar-thumb {
+  background: var(--gis-border);
+  border-radius: 3px;
+}
+
+.cadastral-panel-left::-webkit-scrollbar-thumb:hover,
+.property-panel-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--gis-border-subtle);
+}
+
+/* ==========================================================================
+   3. STATUS BAR: Minimal 26px Status Strip
+   ========================================================================== */
+.cadastral-statusbar {
+  height: 26px;
+  min-height: 26px;
+  max-height: 26px;
+  background-color: var(--gis-bg-header);
+  border-top: 1px solid var(--gis-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 0.6875rem;
+  color: var(--gis-text-muted);
+  user-select: none;
+  z-index: 10;
+}
+
+.statusbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusbar-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--gis-success);
+}
+
+.statusbar-text {
+  font-weight: 500;
+  color: var(--gis-text-secondary);
+}
+
+.statusbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--gis-font-mono);
+  font-size: 0.6875rem;
+  color: var(--gis-text-muted);
+}
+
+.statusbar-sep {
+  opacity: 0.5;
+}
+

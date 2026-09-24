@@ -28,6 +28,7 @@ from app.services.ulpin_record_service import (
     ULPINDuplicateError,
     ULPINUnitNotFoundError,
     create_ulpin_record,
+    ensure_cadastral_unit_hierarchy,
     extract_floor_number,
     get_ulpin_record_by_code,
     get_ulpin_record_by_unit_id,
@@ -84,12 +85,16 @@ def generate_ulpin(
         default=None,
         description="Explicitly control database persistence (overrides payload.persist)",
     ),
+    auto_create_unit: Optional[bool] = Query(
+        default=None,
+        description="Auto-create cadastral unit hierarchy if missing (overrides payload.auto_create_unit)",
+    ),
     db: Session = Depends(get_db),
 ) -> Any:
     """
     Endpoint to generate a 3D ULPIN and optionally persist to PostgreSQL/PostGIS.
 
-    - Returns HTTP 200: Generated without persistence.
+    - Returns HTTP 200: Generated without persistence, or auto-created/idempotently resolved.
     - Returns HTTP 201: Successfully generated and persisted to database.
     - Returns HTTP 400: Input parameter validation error.
     - Returns HTTP 404: Referenced unit record does not exist.
@@ -110,12 +115,82 @@ def generate_ulpin(
                 },
             )
 
-    # Determine persistence intent
+    # Determine persistence and auto-creation intent
+    should_auto_create = auto_create_unit if auto_create_unit is not None else payload.auto_create_unit
     should_persist = persist if persist is not None else payload.persist
+    if should_auto_create:
+        should_persist = True
     if should_persist is None and parsed_unit_id is not None:
         should_persist = True
 
+    # Gracefully sanitize and normalize building, floor, unit, and property type inputs
+    clean_building = payload.building
+    if isinstance(clean_building, str):
+        cb = clean_building.strip().upper()
+        if cb.isdigit() and 1 <= len(cb) <= 3:
+            clean_building = f"B{int(cb):03d}"
+        elif cb.startswith("BUILDING"):
+            clean_building = cb[8:].strip()
+
+    clean_floor = payload.floor
+    if isinstance(clean_floor, str):
+        cf = clean_floor.strip().upper()
+        if cf in ("G", "GF", "GROUND", "GROUND FLOOR", "GROUNDFLOOR"):
+            clean_floor = "F00"
+
+    clean_unit = payload.unit
+    if isinstance(clean_unit, str):
+        cu = clean_unit.strip().upper()
+        if cu.startswith("UNIT"):
+            cu = cu[4:].strip()
+        if cu.startswith("U-") and cu[2:].isdigit():
+            clean_unit = f"U{int(cu[2:]):03d}"
+        elif cu.startswith("U ") and cu[2:].isdigit():
+            clean_unit = f"U{int(cu[2:]):03d}"
+
+    clean_type = payload.type.strip().upper()
+    type_aliases = {
+        "PARKING": "PRK",
+        "PARKING BAY": "PRK",
+        "RESIDENTIAL": "RES",
+        "COMMERCIAL": "COM",
+        "OFFICE": "OFF",
+        "UTILITY": "UTL",
+        "INFRASTRUCTURE": "UTL",
+        "TERRACE": "TER",
+        "INDUSTRIAL": "IND",
+        "STORAGE": "STR",
+        "WAREHOUSE": "STR",
+        "MIXED": "MIX",
+        "MIXED-USE": "MIX",
+        "MIXED USE": "MIX",
+    }
+    if clean_type in type_aliases:
+        clean_type = type_aliases[clean_type]
+
     try:
+        # Case 0: Auto-creation of unit hierarchy and persistence requested
+        if should_auto_create is True:
+            ulpin, record = ensure_cadastral_unit_hierarchy(
+                db,
+                state=payload.state,
+                district=payload.district,
+                parcel=payload.parcel,
+                building=clean_building,
+                floor=clean_floor,
+                unit=clean_unit,
+                property_type=clean_type,
+                unit_id=parsed_unit_id,
+            )
+            response.status_code = status.HTTP_200_OK
+            return ULPINGenerateResponse(
+                success=True,
+                ulpin_3d=ulpin,
+                persisted=True,
+                record_id=str(record.id),
+                unit_id=str(record.unit_id),
+            )
+
         # Case 1: Persistence explicitly requested
         if should_persist is True:
             ulpin, record = create_ulpin_record(
@@ -123,10 +198,10 @@ def generate_ulpin(
                 state=payload.state,
                 district=payload.district,
                 parcel=payload.parcel,
-                building=payload.building,
-                floor=payload.floor,
-                unit=payload.unit,
-                property_type=payload.type,
+                building=clean_building,
+                floor=clean_floor,
+                unit=clean_unit,
+                property_type=clean_type,
                 unit_id=parsed_unit_id,
             )
             response.status_code = status.HTTP_201_CREATED
@@ -144,10 +219,10 @@ def generate_ulpin(
                 state=payload.state,
                 district=payload.district,
                 parcel=payload.parcel,
-                building=payload.building,
-                floor=payload.floor,
-                unit=payload.unit,
-                property_type=payload.type,
+                building=clean_building,
+                floor=clean_floor,
+                unit=clean_unit,
+                property_type=clean_type,
             )
             response.status_code = status.HTTP_200_OK
             return ULPINGenerateResponse(
@@ -162,18 +237,18 @@ def generate_ulpin(
             state=payload.state,
             district=payload.district,
             parcel=payload.parcel,
-            building=payload.building,
-            floor=payload.floor,
-            unit=payload.unit,
-            property_type=payload.type,
+            building=clean_building,
+            floor=clean_floor,
+            unit=clean_unit,
+            property_type=clean_type,
         )
 
         # Check if an authoritative cadastral Unit already exists in the database
         norm_parcel = normalize_parcel(payload.parcel)
-        norm_building = normalize_building(payload.building)
-        norm_floor = normalize_floor(payload.floor)
+        norm_building = normalize_building(clean_building)
+        norm_floor = normalize_floor(clean_floor)
         floor_int = extract_floor_number(norm_floor)
-        norm_unit = normalize_unit(payload.unit)
+        norm_unit = normalize_unit(clean_unit)
 
         unit_obj = resolve_unit(
             db,

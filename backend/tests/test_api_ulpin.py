@@ -5,7 +5,16 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_generate_ulpin_success():
+@pytest.fixture
+def isolate_ulpin_generation(monkeypatch):
+    """
+    Isolates ULPIN generation unit tests from persistent database records,
+    ensuring pure deterministic identifier generation without database collisions.
+    """
+    monkeypatch.setattr("app.api.routes.ulpin.resolve_unit", lambda *args, **kwargs: None)
+
+
+def test_generate_ulpin_success(isolate_ulpin_generation):
     """
     Test successful generation of 3D ULPIN via POST /api/v1/ulpin/generate
     using the exact prompt payload.

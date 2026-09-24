@@ -1,0 +1,247 @@
+/* ==========================================================================
+   Compact ULPIN Generator Panel Styles
+   Theme: Professional Dark Navy / Slate GIS Prototype
+   ========================================================================== */
+
+.compact-ulpin-panel {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--gis-text-primary);
+  font-size: 0.8125rem;
+}
+
+/* Panel Header */
+.compact-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gis-border);
+}
+
+.compact-panel-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gis-text-primary);
+  margin: 0;
+}
+
+.compact-panel-tag {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: var(--gis-bg-surface);
+  color: var(--gis-info);
+  padding: 2px 6px;
+  border-radius: var(--gis-radius-sm);
+  border: 1px solid var(--gis-border-subtle);
+}
+
+/* Compact Form */
+.compact-ulpin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compact-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.compact-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.compact-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gis-text-secondary);
+}
+
+.compact-input,
+.compact-select {
+  height: 28px;
+  padding: 0 8px;
+  background-color: var(--gis-bg-input);
+  border: 1px solid var(--gis-border);
+  border-radius: var(--gis-radius-sm);
+  color: var(--gis-text-primary);
+  font-size: 0.75rem;
+  font-family: var(--gis-font-mono);
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.compact-input::placeholder {
+  color: var(--gis-text-muted);
+  font-family: var(--gis-font-sans);
+  font-size: 0.6875rem;
+}
+
+.compact-input:focus,
+.compact-select:focus {
+  border-color: var(--gis-border-focus);
+}
+
+.compact-input--error,
+.compact-select--error {
+  border-color: #ef4444;
+}
+
+.compact-select option {
+  background-color: var(--gis-bg-panel);
+  color: var(--gis-text-primary);
+}
+
+.compact-field-error {
+  font-size: 0.625rem;
+  color: #f87171;
+  margin-top: 1px;
+}
+
+/* Backend Error */
+.compact-error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--gis-radius-sm);
+  color: #fca5a5;
+  font-size: 0.6875rem;
+}
+
+.compact-error-banner__icon {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.compact-error-banner__msg,
+.compact-error-banner__message {
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+/* Submit Action Button */
+.btn-generate-ulpin {
+  height: 32px;
+  margin-top: 4px;
+  background-color: var(--gis-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--gis-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-generate-ulpin:hover:not(:disabled) {
+  background-color: var(--gis-accent-hover);
+}
+
+.btn-generate-ulpin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Generated ULPIN Box */
+.compact-result-section {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--gis-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compact-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.compact-result-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gis-text-secondary);
+}
+
+.compact-result-badge {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--gis-success);
+  background-color: rgba(16, 185, 129, 0.1);
+  padding: 1px 5px;
+  border-radius: var(--gis-radius-sm);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.compact-result-box {
+  background-color: var(--gis-bg-input);
+  border: 1px solid var(--gis-border);
+  border-radius: var(--gis-radius-sm);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compact-result-code {
+  font-family: var(--gis-font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: #67e8f9;
+  word-break: break-all;
+  user-select: all;
+}
+
+.btn-compact-copy {
+  align-self: flex-end;
+  height: 22px;
+  padding: 0 8px;
+  background-color: var(--gis-bg-surface);
+  border: 1px solid var(--gis-border-subtle);
+  border-radius: var(--gis-radius-sm);
+  color: var(--gis-text-secondary);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-compact-copy:hover {
+  background-color: var(--gis-border);
+  color: var(--gis-text-primary);
+}
+
+.btn-compact-copy--copied {
+  background-color: var(--gis-success);
+  color: #ffffff;
+  border-color: var(--gis-success);
+}
+

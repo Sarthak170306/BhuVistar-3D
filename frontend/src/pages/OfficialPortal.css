@@ -1,0 +1,257 @@
+/* ==========================================================================
+   BhuVistaar 3D — Official & Admin Portal Placeholder Styles
+   ========================================================================== */
+
+.portal-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--gis-bg-app, #0b1120);
+  color: var(--gis-text-primary, #f8fafc);
+  font-family: var(--gis-font-sans, sans-serif);
+  box-sizing: border-box;
+}
+
+.portal-header {
+  height: 52px;
+  background-color: var(--gis-bg-header, #0d1526);
+  border-bottom: 1px solid var(--gis-border, #1e293b);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.portal-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.portal-header__icon {
+  font-size: 1.4rem;
+}
+
+.portal-header__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.portal-header__subtitle {
+  font-size: 0.72rem;
+  color: var(--gis-text-secondary, #94a3b8);
+}
+
+.portal-header__user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.portal-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--gis-bg-surface, #162032);
+  border: 1px solid var(--gis-border-subtle, #26354a);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.portal-user-role {
+  font-family: var(--gis-font-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.portal-user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.portal-logout-btn {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.portal-logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+}
+
+.portal-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.portal-card {
+  width: 100%;
+  max-width: 620px;
+  background-color: var(--gis-bg-panel, #0f172a);
+  border: 1px solid var(--gis-border, #1e293b);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  padding: 36px;
+  box-sizing: border-box;
+}
+
+.portal-card__badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.portal-role-pill {
+  font-family: var(--gis-font-mono, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.portal-role-pill--official {
+  background-color: rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  color: #60a5fa;
+}
+
+.portal-role-pill--admin {
+  background-color: rgba(217, 119, 6, 0.2);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  color: #fbbf24;
+}
+
+.portal-status-pill {
+  font-size: 0.7rem;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.portal-card__title {
+  margin: 0 0 10px 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.portal-card__lead {
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+  color: var(--gis-text-secondary, #94a3b8);
+  line-height: 1.5;
+}
+
+.portal-card__lead strong {
+  color: #f8fafc;
+}
+
+.portal-email {
+  font-family: var(--gis-font-mono, monospace);
+  font-size: 0.85rem;
+  color: #38bdf8;
+}
+
+.portal-info-box {
+  background-color: rgba(11, 17, 32, 0.8);
+  border: 1px solid var(--gis-border, #1e293b);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 28px;
+}
+
+.portal-info-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.portal-info-icon {
+  font-size: 1.1rem;
+}
+
+.portal-info-text {
+  margin: 0 0 16px 0;
+  font-size: 0.82rem;
+  color: var(--gis-text-secondary, #94a3b8);
+  line-height: 1.5;
+}
+
+.portal-planned-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portal-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.feature-check {
+  font-size: 0.85rem;
+}
+
+.portal-card__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.portal-action-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.portal-action-btn--secondary {
+  background-color: var(--gis-bg-surface, #162032);
+  border: 1px solid var(--gis-border-subtle, #26354a);
+  color: #cbd5e1;
+}
+
+.portal-action-btn--secondary:hover {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+.portal-footer {
+  height: 40px;
+  background-color: var(--gis-bg-header, #0d1526);
+  border-top: 1px solid var(--gis-border, #1e293b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  color: var(--gis-text-muted, #64748b);
+}

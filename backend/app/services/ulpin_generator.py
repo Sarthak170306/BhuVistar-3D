@@ -168,6 +168,10 @@ def normalize_floor(floor: Union[str, int]) -> str:
     except ValueError:
         pass
 
+    # Handle ground floor aliases (e.g. G, GF, GROUND, GROUNDFLOOR)
+    if cleaned in ("G", "GF", "GROUND", "GROUNDFLOOR"):
+        return "F00"
+
     if "-" in cleaned:
         raise ULPINValidationError(f"Invalid floor code: '{floor}'.")
 
@@ -208,13 +212,17 @@ def normalize_unit(unit: Union[str, int]) -> str:
     if cleaned.isdigit() and 1 <= len(cleaned) <= 3:
         return f"U{int(cleaned):03d}"
 
-    # Prefix 'U' with 1 or 2 digits e.g. "U12" -> "U012", "U4" -> "U004"
-    if cleaned.startswith("U") and cleaned[1:].isdigit() and 1 <= len(cleaned[1:]) <= 2:
+    # Prefix 'U' with 1, 2, or 3 digits e.g. "U12" -> "U012", "U4" -> "U004", "U001" -> "U001"
+    if cleaned.startswith("U") and cleaned[1:].isdigit() and 1 <= len(cleaned[1:]) <= 3:
         return f"U{int(cleaned[1:]):03d}"
 
     # Exactly 4 characters starting with 'U' + 3 alphanumeric characters
     if len(cleaned) == 4 and cleaned.startswith("U") and cleaned[1:].isalnum():
         return cleaned
+
+    # 3-character alphanumeric unit code (e.g. "F01" -> "UF01", "C01" -> "UC01", "P32" -> "UP32")
+    if len(cleaned) == 3 and cleaned.isalnum():
+        return f"U{cleaned}"
 
     raise ULPINValidationError(
         f"Invalid unit code: '{unit}'. Unit must follow Uxxx format (1 'U' + 3 alphanumeric characters)."

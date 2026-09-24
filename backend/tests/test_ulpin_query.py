@@ -56,7 +56,7 @@ def query_cadastral_setup(db: Session):
     db.flush()
 
     building = Building(
-        building_id="B001",
+        building_id="B003",
         parcel_id=parcel.id,
         name="Plaza One",
     )
@@ -99,7 +99,7 @@ def query_cadastral_setup(db: Session):
         state="UP",
         district="NOI",
         parcel=parcel_ref,
-        building="B001",
+        building="B003",
         floor="B01",
         unit="UP01",
         property_type="PRK",
@@ -110,7 +110,7 @@ def query_cadastral_setup(db: Session):
         state="UP",
         district="NOI",
         parcel=parcel_ref,
-        building="B001",
+        building="B003",
         floor="F01",
         unit="U101",
         property_type="RES",
@@ -121,7 +121,7 @@ def query_cadastral_setup(db: Session):
         state="UP",
         district="NOI",
         parcel=parcel_ref,
-        building="B001",
+        building="B003",
         floor="F02",
         unit="U201",
         property_type="COM",
@@ -165,7 +165,7 @@ def test_get_ulpin_by_code_success(query_cadastral_setup):
     assert item["ulpin_3d"] == target_ulpin
     assert item["unit_id"] == str(unit_res.id)
     assert item["parcel_id_reference"] == setup["parcel"].parcel_id
-    assert item["building_id_reference"] == "B001"
+    assert item["building_id_reference"] == "B003"
     assert item["floor_number"] == 1
     assert item["unit_code"] == "U101"
     assert item["unit_type"] == "RES"
@@ -175,7 +175,7 @@ def test_get_ulpin_by_code_success(query_cadastral_setup):
 
 def test_get_ulpin_by_code_not_found():
     """2. Test GET /api/v1/ulpin/{ulpin_3d} returns HTTP 404 for non-existent ULPIN."""
-    dummy_ulpin = "BV3D-UP-NOI-NONEXIST99-B001-F01-U101-RES"
+    dummy_ulpin = "BV3D-UP-NOI-NONEXIST99-B003-F01-U101-RES"
     response = client.get(f"/api/v1/ulpin/{dummy_ulpin}")
     assert response.status_code == 404
     res_data = response.json()
@@ -235,7 +235,7 @@ def test_get_ulpins_by_parcel_multiple_records(query_cadastral_setup):
     # Verify all records reference the correct parcel
     for item in res_data["data"]:
         assert item["parcel_id_reference"] == parcel_ref
-        assert item["building_id_reference"] == "B001"
+        assert item["building_id_reference"] == "B003"
 
 
 def test_get_ulpins_by_parcel_empty_result():

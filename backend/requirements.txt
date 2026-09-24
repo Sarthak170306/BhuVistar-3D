@@ -1,5 +1,5 @@
-﻿# Core Web Framework
-fastapi>=0.115.0
+# Core Web Framework
+fastapi>=0.115.0,<0.137.0
 uvicorn[standard]>=0.32.0
 
 # Database & Spatial ORM
@@ -11,3 +11,8 @@ alembic>=1.14.0
 # Configuration & Environment Management
 pydantic-settings>=2.6.0
 python-dotenv>=1.0.1
+
+# Authentication & Security
+pyjwt>=2.8.0
+bcrypt>=4.0.0
+email-validator>=2.0.0

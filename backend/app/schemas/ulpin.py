@@ -20,27 +20,31 @@ class ULPINGenerateRequest(BaseModel):
     )
     parcel: str = Field(
         ...,
+        validation_alias=AliasChoices("parcel", "parcel_id", "parcelId"),
         description="8-14 character cadastral parcel ID or 2D ULPIN (e.g. 55443322)",
         examples=["55443322"],
     )
     building: Union[str, int] = Field(
         ...,
+        validation_alias=AliasChoices("building", "building_id", "buildingId"),
         description="Building code or integer index (e.g. B001, 1)",
         examples=["B001"],
     )
     floor: Union[str, int] = Field(
         ...,
+        validation_alias=AliasChoices("floor", "floor_id", "floorId", "floor_level", "floorLevel", "floor_number", "floorNumber"),
         description="Floor code or level integer (e.g. B02, F04, 4, -2)",
         examples=["B02"],
     )
     unit: Union[str, int] = Field(
         ...,
+        validation_alias=AliasChoices("unit", "unit_code", "unitCode"),
         description="Unit code or integer number (e.g. UP32, U012, 402)",
         examples=["UP32"],
     )
     type: str = Field(
         ...,
-        validation_alias=AliasChoices("type", "property_type", "unit_type"),
+        validation_alias=AliasChoices("type", "property_type", "unit_type", "propertyType", "unitType"),
         description="3-letter property type classification code (e.g. PRK, RES, COM)",
         examples=["PRK"],
     )
@@ -52,6 +56,11 @@ class ULPINGenerateRequest(BaseModel):
     persist: Optional[bool] = Field(
         default=None,
         description="Set True to persist to database, False for pure generation without persistence",
+        examples=[True],
+    )
+    auto_create_unit: Optional[bool] = Field(
+        default=None,
+        description="Set True to auto-create Parcel -> Building -> Floor -> Unit hierarchy if missing",
         examples=[True],
     )
 

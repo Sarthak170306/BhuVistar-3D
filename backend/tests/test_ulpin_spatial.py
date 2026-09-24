@@ -67,8 +67,9 @@ def spatial_cadastral_setup(db: Session):
     db.add(parcel)
     db.flush()
 
+    building_ref = "B999"
     building = Building(
-        building_id="B001",
+        building_id=building_ref,
         parcel_id=parcel.id,
         name="Apex 3D Tower",
         geometry=WKTElement(
@@ -143,7 +144,7 @@ def spatial_cadastral_setup(db: Session):
         state="UP",
         district="NOI",
         parcel=parcel_ref,
-        building="B001",
+        building=building_ref,
         floor="B01",
         unit="UP01",
         property_type="PRK",
@@ -154,7 +155,7 @@ def spatial_cadastral_setup(db: Session):
         state="UP",
         district="NOI",
         parcel=parcel_ref,
-        building="B001",
+        building=building_ref,
         floor="F01",
         unit="U101",
         property_type="RES",
@@ -165,7 +166,7 @@ def spatial_cadastral_setup(db: Session):
         state="UP",
         district="NOI",
         parcel=parcel_ref,
-        building="B001",
+        building=building_ref,
         floor="F05",
         unit="U501",
         property_type="OFF",
@@ -281,8 +282,19 @@ def test_invalid_bbox_ordering():
     assert r2.status_code == 422
 
 
-def test_z_range_query(spatial_cadastral_setup):
+def test_z_range_query(spatial_cadastral_setup, monkeypatch):
     """8. Test GET /api/v1/ulpin/spatial/z-range for vertical elevation intervals."""
+    from app.services import ulpin_spatial_service
+
+    orig_find = ulpin_spatial_service.find_ulpins_by_height_range
+    fixture_ulpins = set(spatial_cadastral_setup["ulpins"])
+    monkeypatch.setattr(
+        "app.api.routes.ulpin.find_ulpins_by_height_range",
+        lambda db, min_z, max_z: [
+            r for r in orig_find(db, min_z=min_z, max_z=max_z) if r.ulpin_3d in fixture_ulpins
+        ],
+    )
+
     # 1st Floor (Z=10.0m)
     r1 = client.get("/api/v1/ulpin/spatial/z-range?min_z=8.0&max_z=15.0")
     assert r1.status_code == 200

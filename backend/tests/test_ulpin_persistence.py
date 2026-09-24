@@ -51,7 +51,7 @@ def cadastral_hierarchy(db: Session):
     db.flush()
 
     building = Building(
-        building_id="B001",
+        building_id="B002",
         parcel_id=parcel.id,
         name="Tech Park Tower A",
     )
@@ -136,13 +136,13 @@ def test_create_ulpin_record_service(db: Session, cadastral_hierarchy):
         state="UP",
         district="NOI",
         parcel=parcel.parcel_id,
-        building="B001",
+        building="B002",
         floor="B02",
         unit="UP32",
         property_type="PRK",
     )
 
-    expected_ulpin = f"BV3D-UP-NOI-{parcel.parcel_id}-B001-B02-UP32-PRK"
+    expected_ulpin = f"BV3D-UP-NOI-{parcel.parcel_id}-B002-B02-UP32-PRK"
     assert ulpin_code == expected_ulpin
     assert record.id is not None
     assert record.unit_id == unit_p.id
@@ -175,7 +175,7 @@ def test_create_ulpin_record_duplicate_raises_conflict(db: Session, cadastral_hi
         state="UP",
         district="NOI",
         parcel=parcel.parcel_id,
-        building="B001",
+        building="B002",
         floor="B02",
         unit="UP32",
         property_type="PRK",
@@ -188,7 +188,7 @@ def test_create_ulpin_record_duplicate_raises_conflict(db: Session, cadastral_hi
             state="UP",
             district="NOI",
             parcel=parcel.parcel_id,
-            building="B001",
+            building="B002",
             floor="B02",
             unit="UP32",
             property_type="PRK",
@@ -205,7 +205,7 @@ def test_create_ulpin_record_unit_not_found(db: Session):
             state="UP",
             district="NOI",
             parcel="NONEXIST99",
-            building="B001",
+            building="B002",
             floor="B02",
             unit="UP32",
             property_type="PRK",
@@ -225,7 +225,7 @@ def test_api_persist_ulpin_success(db: Session, cadastral_hierarchy):
         "state": "UP",
         "district": "NOI",
         "parcel": parcel.parcel_id,
-        "building": "B001",
+        "building": "B002",
         "floor": "B02",
         "unit": "UP32",
         "type": "PRK",
@@ -237,7 +237,7 @@ def test_api_persist_ulpin_success(db: Session, cadastral_hierarchy):
     data = response.json()
     assert data["success"] is True
     assert data["persisted"] is True
-    expected_ulpin = f"BV3D-UP-NOI-{parcel.parcel_id}-B001-B02-UP32-PRK"
+    expected_ulpin = f"BV3D-UP-NOI-{parcel.parcel_id}-B002-B02-UP32-PRK"
     assert data["ulpin_3d"] == expected_ulpin
     assert data["unit_id"] == str(unit_p.id)
     assert data["record_id"] is not None
@@ -263,7 +263,7 @@ def test_api_persist_ulpin_duplicate_conflict(cadastral_hierarchy):
         "state": "UP",
         "district": "NOI",
         "parcel": parcel.parcel_id,
-        "building": "B001",
+        "building": "B002",
         "floor": "B02",
         "unit": "UP32",
         "type": "PRK",
@@ -294,7 +294,7 @@ def test_api_persist_ulpin_direct_unit_id(db: Session, cadastral_hierarchy):
         "state": "UP",
         "district": "NOI",
         "parcel": parcel.parcel_id,
-        "building": "B001",
+        "building": "B002",
         "floor": "F04",
         "unit": "U402",
         "type": "RES",
@@ -322,7 +322,7 @@ def test_api_persist_unit_not_found():
         "state": "UP",
         "district": "NOI",
         "parcel": "NOTFOUND99",
-        "building": "B001",
+        "building": "B002",
         "floor": "B02",
         "unit": "UP32",
         "type": "PRK",
@@ -343,7 +343,7 @@ def test_api_persist_invalid_input():
         "state": "INVALID_STATE",
         "district": "NOI",
         "parcel": "55443322",
-        "building": "B001",
+        "building": "B002",
         "floor": "B02",
         "unit": "UP32",
         "type": "PRK",

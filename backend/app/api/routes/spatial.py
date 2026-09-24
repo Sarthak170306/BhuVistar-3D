@@ -10,8 +10,10 @@ from app.models.unit import Unit
 from app.schemas.spatial import (
     SpatialChecks,
     SpatialValidationErrorResponse,
+    UnitGeometryResponse,
     UnitSpatialValidationResponse,
 )
+from app.services.geometry_serialization_service import serialize_unit_geometry
 from app.services.spatial_validation_service import (
     InvalidGeometryError,
     SpatialContainmentError,
@@ -23,9 +25,8 @@ from app.services.ulpin_record_service import ULPINUnitNotFoundError
 router = APIRouter()
 
 
-@router.api_route(
+@router.post(
     "/validate-unit/{unit_id}",
-    methods=["POST", "GET"],
     response_model=UnitSpatialValidationResponse,
     status_code=status.HTTP_200_OK,
     responses={
@@ -43,6 +44,7 @@ router = APIRouter()
     },
     summary="Validate 3D Unit Spatial Hierarchy",
     description="Validates spatial containment and geometric validity for Parcel -> Building -> Floor -> Unit hierarchy using PostGIS.",
+    operation_id="validate_unit_spatial_hierarchy_post",
 )
 def validate_unit_hierarchy_endpoint(
     unit_id: str,
@@ -133,3 +135,88 @@ def validate_unit_hierarchy_endpoint(
                 "detail": str(exc),
             },
         )
+
+
+@router.get(
+    "/validate-unit/{unit_id}",
+    response_model=UnitSpatialValidationResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": UnitSpatialValidationResponse,
+            "description": "Spatial hierarchy validation succeeded and is valid",
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "model": SpatialValidationErrorResponse,
+            "description": "Invalid spatial relationship, invalid geometry, or malformed UUID",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Unit not found in database",
+        },
+    },
+    summary="Validate 3D Unit Spatial Hierarchy (GET)",
+    description="Validates spatial containment and geometric validity for Parcel -> Building -> Floor -> Unit hierarchy using PostGIS.",
+    operation_id="validate_unit_spatial_hierarchy_get",
+)
+def validate_unit_hierarchy_endpoint_get(
+    unit_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """GET variant of spatial hierarchy validation endpoint."""
+    return validate_unit_hierarchy_endpoint(unit_id=unit_id, db=db)
+
+
+@router.get(
+    "/unit/{unit_id}/geometry",
+    response_model=UnitGeometryResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {
+            "model": UnitGeometryResponse,
+            "description": "Authoritative PostGIS geometry serialized successfully",
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "Malformed UUID parameter",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Unit not found in database",
+        },
+    },
+    summary="Retrieve Authoritative 3D Unit Geometry",
+    description="Serializes authoritative 3D unit geometry and parent hierarchy (building, floor, parcel) from PostGIS into standard GeoJSON 3D format.",
+    operation_id="get_unit_geometry",
+)
+def get_unit_geometry_endpoint(
+    unit_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Serializes authoritative PostGIS 3D spatial geometry for the unit.
+    Returns 200 with standard GeoJSON 3D geometry and bounding envelope,
+    400 if unit_id is malformed, and 404 if unit does not exist.
+    """
+    try:
+        unit_uuid = uuid.UUID(unit_id)
+    except (ValueError, AttributeError):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "success": False,
+                "error": f"Invalid unit UUID format: '{unit_id}'.",
+                "detail": f"The provided unit ID '{unit_id}' is not a valid UUID.",
+            },
+        )
+
+    result = serialize_unit_geometry(db, unit_uuid)
+    if result is None:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "success": False,
+                "error": f"Unit '{unit_id}' not found.",
+                "detail": f"No unit found matching ID '{unit_id}' in the database.",
+            },
+        )
+
+    return UnitGeometryResponse(**result)
+
